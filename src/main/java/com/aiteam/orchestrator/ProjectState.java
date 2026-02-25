@@ -11,7 +11,7 @@ public class ProjectState {
 
     private final String projectId;
     private final Map<String, Task> taskMap;           // 任务ID -> 任务
-    private final Map<String, TaskStatus> statusMap;   // 快速状态查询
+    private final Map<String, Task.TaskStatus> statusMap;   // 快速状态查询
     private final Map<String, Integer> retryCountMap; // 重试计数
     private LocalDateTime lastUpdated;
     private ProjectStatus overallStatus;
@@ -28,23 +28,23 @@ public class ProjectState {
     // Getters
     public String getProjectId() { return projectId; }
     public Map<String, Task> getTaskMap() { return new ConcurrentHashMap<>(taskMap); }
-    public Map<String, TaskStatus> getStatusMap() { return new ConcurrentHashMap<>(statusMap); }
+    public Map<String, Task.TaskStatus> getStatusMap() { return new ConcurrentHashMap<>(statusMap); }
     public Map<String, Integer> getRetryCountMap() { return new ConcurrentHashMap<>(retryCountMap); }
     public LocalDateTime getLastUpdated() { return lastUpdated; }
     public ProjectStatus getOverallStatus() { return overallStatus; }
 
     // Task management
     public void addTask(Task task) {
-        taskMap.put(task.id(), task);
-        statusMap.put(task.id(), task.status());
-        retryCountMap.put(task.id(), task.retryCount());
+        taskMap.put(task.getId(), task);
+        statusMap.put(task.getId(), task.getStatus());
+        retryCountMap.put(task.getId(), task.getRetryCount());
         updateOverallStatus();
     }
 
     public void updateTask(Task updatedTask) {
-        taskMap.put(updatedTask.id(), updatedTask);
-        statusMap.put(updatedTask.id(), updatedTask.status());
-        retryCountMap.put(updatedTask.id(), updatedTask.retryCount());
+        taskMap.put(updatedTask.getId(), updatedTask);
+        statusMap.put(updatedTask.getId(), updatedTask.getStatus());
+        retryCountMap.put(updatedTask.getId(), updatedTask.getRetryCount());
         updateOverallStatus();
         lastUpdated = LocalDateTime.now();
     }
@@ -97,7 +97,7 @@ public class ProjectState {
         if (task == null) return false;
 
         // 检查所有前置任务是否已完成
-        return task.dependencies().stream()
+        return task.getDependencies().stream()
             .allMatch(depId -> {
                 Task depTask = getTask(depId);
                 return depTask == null || isTaskCompleted(depId);
@@ -123,10 +123,10 @@ public class ProjectState {
         }
 
         boolean allCompleted = taskMap.values().stream()
-            .allMatch(task -> task.status() == Task.TaskStatus.COMPLETED);
+            .allMatch(task -> task.getStatus() == Task.TaskStatus.COMPLETED);
 
         boolean anyFailed = taskMap.values().stream()
-            .anyMatch(task -> task.status() == Task.TaskStatus.FAILED);
+            .anyMatch(task -> task.getStatus() == Task.TaskStatus.FAILED);
 
         if (allCompleted) {
             overallStatus = ProjectStatus.COMPLETED;

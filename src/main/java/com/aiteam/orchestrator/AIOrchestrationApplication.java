@@ -30,4 +30,12 @@ public class AIOrchestrationApplication {
     public ProjectStateRepository projectStateRepository() {
         return new RedisProjectStateRepository();
     }
+
+    /**
+     * 创建默认的Agent仓库实现
+     */
+    @Bean
+    public AgentRepository agentRepository() {
+        return new DatabaseAgentRepository();
+    }
 }

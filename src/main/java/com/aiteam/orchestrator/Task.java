@@ -6,16 +6,38 @@ import java.util.List;
 /**
  * 任务实体类，表示一个可执行的任务单元
  */
-public record Task(
-    String id,                    // 任务唯一标识
-    String role,                 // 执行角色（前端、后端、测试等）
-    List<String> dependencies,   // 前置任务ID列表
-    TaskStatus status,           // 任务状态
-    int retryCount,             // 重试次数
-    LocalDateTime createdAt,     // 创建时间
-    LocalDateTime updatedAt,     // 更新时间
-    String description          // 任务描述
-) {
+public class Task {
+
+    private final String id;                    // 任务唯一标识
+    private final String role;                 // 执行角色（前端、后端、测试等）
+    private final List<String> dependencies;   // 前置任务ID列表
+    private TaskStatus status;               // 任务状态
+    private int retryCount;                  // 重试次数
+    private LocalDateTime createdAt;         // 创建时间
+    private LocalDateTime updatedAt;         // 更新时间
+    private String description;              // 任务描述
+
+    public Task(String id, String role, List<String> dependencies, TaskStatus status,
+                int retryCount, LocalDateTime createdAt, LocalDateTime updatedAt, String description) {
+        this.id = id;
+        this.role = role;
+        this.dependencies = dependencies != null ? dependencies : java.util.Collections.emptyList();
+        this.status = status;
+        this.retryCount = retryCount;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.description = description;
+    }
+
+    // Getters
+    public String getId() { return id; }
+    public String getRole() { return role; }
+    public List<String> getDependencies() { return dependencies; }
+    public TaskStatus getStatus() { return status; }
+    public int getRetryCount() { return retryCount; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public String getDescription() { return description; }
 
     public enum TaskStatus {
         PENDING,      // 等待执行
@@ -32,7 +54,7 @@ public record Task(
         return new Task(
             id,
             role,
-            dependencies != null ? dependencies : List.of(),
+            dependencies,
             TaskStatus.PENDING,
             0,
             LocalDateTime.now(),

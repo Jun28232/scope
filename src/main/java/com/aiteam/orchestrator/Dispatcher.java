@@ -48,11 +48,11 @@ public class Dispatcher {
      * 构建任务拆解的提示词
      */
     private String buildDecompositionPrompt(String description) {
-        return """
+        return String.format("""
             你是一个专业的AI项目拆解专家。请将以下项目需求拆解为具体的执行任务：
-            
+
             项目需求: %s
-            
+
             请按照以下格式返回JSON:
             {
               "title": "项目标题",
@@ -65,20 +65,20 @@ public class Dispatcher {
                   "description": "具体的任务描述"
                 },
                 {
-                  "id": "task_2", 
+                  "id": "task_2",
                   "role": "前端",
                   "dependencies": ["task_1"],
                   "description": "具体的任务描述"
                 }
               ]
             }
-            
+
             要求:
             1. 每个任务必须有明确的执行角色（后端、前端、测试、架构设计等）
             2. 正确识别任务间的依赖关系
             3. 任务描述要具体、可执行
             4. 返回纯JSON格式，不要有其他文本
-            """.formatted(description);
+            """, description);
     }
 
     /**
@@ -88,10 +88,10 @@ public class Dispatcher {
         // TODO: 实现JSON解析逻辑，这里简化为示例
         // 实际实现需要使用Jackson或Gson等JSON库
 
-        List<Task> tasks = List.of(
-            Task.create("task_1", "后端", List.of(), "实现核心业务逻辑"),
-            Task.create("task_2", "前端", List.of("task_1"), "开发用户界面"),
-            Task.create("task_3", "测试", List.of("task_2"), "编写单元测试和集成测试")
+        List<Task> tasks = java.util.Arrays.asList(
+            Task.create("task_1", "后端", java.util.Collections.emptyList(), "实现核心业务逻辑"),
+            Task.create("task_2", "前端", java.util.Arrays.asList("task_1"), "开发用户界面"),
+            Task.create("task_3", "测试", java.util.Arrays.asList("task_2"), "编写单元测试和集成测试")
         );
 
         return ProjectPlan.create(projectId, "AI项目", "基于自然语言的项目拆解", tasks);
