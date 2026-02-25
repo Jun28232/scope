@@ -1,0 +1,16 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║    🚀 AgentCorp SaaS Platform - AI Task Orchestration System                    ║
+║                                                                                ║
+║    📊 Dispatcher Agent • 🤝 Role-based Agents • 🔄 Auto Retry                 ║
+║    💾 Project State Management • 🔄 Breakpoint Resume                         ║
+║                                                                                ║
+║    🌐 API: http://localhost:8080/api                                          ║
+║    📚 Docs: http://localhost:8080/api/swagger-ui.html                         ║
+║    💾 Console: http://localhost:8080/api/h2-console                           ║
+║    🔌 WebSocket: ws://localhost:8080/ws                                        ║
+║                                                                                ║
+║    🎯 基于Spring Boot 3.x + Spring AI的任务编排平台                           ║
+║    📅 启动时间: ${spring.application.startup}                                 ║
+║                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════╝

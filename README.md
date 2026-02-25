@@ -1,151 +1,148 @@
-# AI外包公司系统 - 核心骨架
+# AgentCorp SaaS Platform - AI Task Orchestration System
 
 基于Spring Boot 3.x的AI任务编排系统，实现Dispatcher Agent拆解任务和Role-based Agent执行架构。
 
-## 🏗️ 系统架构
-
-### 核心组件
-1. **Dispatcher Agent** - 自然语言任务拆解
-2. **AgentOrchestrator** - 任务编排和执行协调
-3. **Role-based Agents** - 基于角色的执行代理
-4. **ProjectState** - 全局状态管理和持久化
-
-### 技术栈
-- **核心框架**: Spring Boot 3.x + Spring AI
-- **状态持久化**: Redis / 数据库
-- **任务调度**: 自定义状态机逻辑
-- **编程语言**: Java 17+
-
-## 📁 项目结构
-
-```
-src/main/java/com/aiteam/orchestrator/
-├── Task.java                    # 任务实体类
-├── ProjectPlan.java             # 项目计划类
-├── ProjectState.java            # 项目状态管理
-├── Dispatcher.java              # Dispatcher Agent接口
-├── AgentOrchestrator.java       # 任务编排器
-├── RoleBasedAgent.java          # 角色代理接口
-├── ProjectStateRepository.java  # 状态仓库接口
-└── AIOrchestrationApplication.java # 主应用类
-```
-
-## 🚀 核心功能
-
-### 1. 任务拆解 (Dispatcher)
-- 使用Spring AI的ChatClient将自然语言转换为结构化任务
-- 支持多任务批量拆解
-- 自动生成任务依赖关系
-
-### 2. 任务编排 (AgentOrchestrator)
-- **依赖检查**: 确保前置任务完成后才执行当前任务
-- **单点重试**: 任务失败时自动重试，支持重试计数
-- **状态持久化**: 每完成一个任务就保存状态
-- **断点续传**: 支持从失败点继续执行
-
-### 3. 角色代理 (Role-based Agents)
-- **后端代理**: 处理后端开发任务
-- **前端代理**: 处理前端开发任务
-- **测试代理**: 处理测试相关任务
-- **架构设计代理**: 处理架构设计任务
-
-## 📋 核心模型
-
-### Task (任务)
-- ID、角色、依赖项、状态、重试计数
-- 支持状态转换：PENDING → RUNNING → COMPLETED/FAILED
-
-### ProjectPlan (项目计划)
-- 项目元数据 + 任务列表
-- 提供依赖关系分析和任务筛选
-
-### ProjectState (项目状态)
-- 全局上下文维护
-- 实时状态跟踪和持久化
-- 支持Redis和数据库两种存储方式
-
-## 🔧 配置说明
-
-### 1. Spring AI配置
-```yaml
-spring:
-  ai:
-    openai:
-      api-key: ${OPENAI_API_KEY}
-      base-url: https://api.openai.com/v1
-```
-
-### 2. 状态存储配置
-```yaml
-# Redis配置
-spring:
-  redis:
-    host: localhost
-    port: 6379
-
-# 数据库配置
-spring:
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-```
-
 ## 🚀 快速开始
 
-### 1. 启动应用
+### 方法一: 使用启动脚本 (推荐)
 ```bash
+# 进入项目目录
+cd /root/.openclaw/workspace/scope
+
+# 启动应用
+./startup.sh
+```
+
+### 方法二: 手动启动
+```bash
+# 编译项目
+mvn clean compile
+
+# 启动应用
 mvn spring-boot:run
 ```
 
-### 2. 使用示例
-```java
-// 创建Dispatcher
-Dispatcher dispatcher = new Dispatcher(chatClientBuilder);
+### 方法三: 使用IDE启动
+1. 在IDE中打开项目
+2. 运行 `AgentCorpApplication.java` 或 `com.aiteam.orchestrator.config.AgentCorpApplication`
+3. 应用将自动启动
 
-// 拆解自然语言任务
-ProjectPlan plan = dispatcher.decomposeTask("开发一个电商网站");
+## 📋 启动前准备
 
-// 创建编排器
-AgentOrchestrator orchestrator = new AgentOrchestrator(stateRepository);
+### 1. 环境要求
+- **Java 8+** (推荐Java 11)
+- **Maven 3.6+**
+- **网络连接** (用于OpenAI API调用)
 
-// 执行项目
-orchestrator.executeProject(plan);
+### 2. 配置环境变量
+```bash
+# 设置OpenAI API Key
+export OPENAI_API_KEY=your-openai-api-key
+
+# 可选: 设置Redis连接
+export REDIS_HOST=localhost
+export REDIS_PORT=6379
 ```
 
-## 📊 状态流转
+### 3. 数据库配置
+应用默认使用H2内存数据库，开发完成后可切换为MySQL/PostgreSQL：
+- **H2控制台**: http://localhost:8080/api/h2-console
+- **JDBC URL**: jdbc:h2:mem:agentcorp
 
+## 🌐 访问接口
+
+### API文档
+- **Swagger UI**: http://localhost:8080/api/swagger-ui.html
+- **API基础路径**: http://localhost:8080/api
+
+### 主要端点
+```http
+GET    /api/projects              # 获取项目列表
+POST   /api/projects              # 创建新项目
+GET    /api/projects/{id}         # 获取项目详情
+POST   /api/projects/{id}/execute # 执行项目
+GET    /api/agents                # 获取所有Agent
+POST   /api/agents                # 创建Agent
+PUT    /api/agents/{id}           # 更新Agent
 ```
-PENDING → RUNNING → COMPLETED
-               ↓
-              FAILED → RETRYING → ... → FAILED
+
+### WebSocket
+- **连接**: ws://localhost:8080/ws
+- **项目状态**: ws://localhost:8080/ws/project/{projectId}
+
+## 📊 监控与调试
+
+### 健康检查
+```bash
+curl http://localhost:8080/api/actuator/health
 ```
 
-## 🔄 断点续传
+### 日志查看
+应用启动后会在控制台输出详细日志，包括：
+- Dispatcher Agent任务拆解过程
+- AgentOrchestrator执行状态
+- WebSocket连接状态
+- 数据库操作日志
 
-```java
-// 从指定状态继续执行
-orchestrator.resumeExecution("project-id");
+## 🔧 配置选项
+
+### application.yml
+- **端口**: 8080 (可修改)
+- **OpenAI配置**: API Key、模型选择
+- **Redis配置**: 缓存和状态存储
+- **数据库**: H2/MySQL/PostgreSQL支持
+
+### 环境变量覆盖
+```bash
+# 覆盖配置文件设置
+-Dspring.datasource.url=jdbc:mysql://localhost:3306/agentcorp
+-Dspring.ai.openai.api-key=your-key
 ```
 
-## 🛠️ 扩展开发
+## 🚨 常见问题
 
-### 添加新的角色代理
-1. 实现 `RoleBasedAgent` 接口
-2. 在 `AgentOrchestrator` 中注册新代理
-3. 配置对应的执行逻辑
+### 启动失败
+1. **检查Java版本**: `java -version`
+2. **检查Maven**: `mvn --version`
+3. **检查网络**: 确保可以访问OpenAI API
 
-### 自定义状态存储
-1. 实现 `ProjectStateRepository` 接口
-2. 配置相应的依赖项
-3. 更新应用配置文件
+### OpenAI API错误
+1. **检查API Key**: 确保环境变量正确设置
+2. **检查网络**: OpenAI API可能需要代理
+3. **使用测试Key**: 开发环境可使用测试Key
 
-## 📝 注意事项
+### 数据库连接失败
+1. **H2模式**: 默认使用内存数据库，无需配置
+2. **MySQL模式**: 确保数据库服务已启动
+3. **Redis模式**: 确保Redis服务已启动
 
-1. **重试策略**: 默认最大重试次数为3次
-2. **状态持久化**: 建议在生产环境使用Redis或数据库
-3. **异常处理**: 所有代理执行失败都会被捕获并重试
-4. **线程安全**: 使用ConcurrentHashMap保证线程安全
+## 📚 开发指南
+
+### 添加新功能
+1. **创建Controller**: 在controller包下添加API接口
+2. **创建DTO**: 在dto包下定义请求响应对象
+3. **更新配置**: 在config包下添加必要配置
+4. **运行测试**: `mvn test`
+
+### 代码结构
+```
+src/main/java/com/aiteam/orchestrator/
+├── controller/     # REST API控制器
+├── dto/           # 数据传递对象
+├── websocket/     # WebSocket服务
+├── config/        # Spring配置类
+└── orchestrator/  # 核心业务逻辑
+```
+
+## 🎯 项目状态
+
+- ✅ 核心架构完成
+- ✅ REST API实现
+- ✅ WebSocket实时通信
+- ✅ 数据库集成支持
+- ✅ 配置和启动脚本
+- ⏳ 生产环境部署
 
 ---
 
-*本系统为AI外包公司的核心任务编排框架，可根据实际需求进行扩展和定制。*
+*AgentCorp SaaS Platform - 让AI团队协作变得简单高效*

@@ -1,0 +1,29 @@
+# 应用启动配置
+spring:
+  profiles:
+    active: dev
+
+# 应用基本信息
+info:
+  app:
+    name: ${spring.application.name}
+    description: AgentCorp SaaS Platform
+    version: 1.0.0
+    encoding: UTF-8
+    java:
+      source: 1.8
+      target: 1.8
+
+# 健康检查
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      roles: USER
+
+# 启动横幅
+banner:
+  location: classpath:banner.txt
